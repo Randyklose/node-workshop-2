@@ -18,7 +18,7 @@ var requestJson = require("./library/request-json");
 var prompt = require('prompt');
 var Table = require('cli-table');
 var colors = require('colors');
-var emoji = require('node-emoji')
+var emoji = require('node-emoji');
 
 var cityUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=";
 var weatherUrl = "https://api.darksky.net/forecast/6c9f3ea6f33282b767d3d4ba347823f2/";
