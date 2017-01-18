@@ -19,6 +19,7 @@ var url= "http://api.open-notify.org/iss-now.json";
 function requestJson(url, callback) {
     request(url, function(err, result) {
         if (err) {
+            console.log("00000")
             callback(err);
         }
         else {
@@ -28,7 +29,7 @@ function requestJson(url, callback) {
                 callback(null, total);
             }
             catch(error) {
-              
+                console.log("-----")
                 callback(error);
             }
         }

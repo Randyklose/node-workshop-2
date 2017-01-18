@@ -39,24 +39,42 @@ function getSynonyms(str, callback) {
 
             requestJson(urlWord, function(error, answer) {
                 if (error) {
-                    console.log("Error!");
+                    console.log("Error:", error);
                 }
                 else {
-                    var synonymsNoun = answer.noun.syn.slice(0,7);
-                    var synonymVerb = answer.verb.syn.slice(0,7);
-                    var antonym = answer.verb.ant.slice(0,7);
-
+                    var synonymVerb = [];
+                    var synonymsNoun = [];
+                    var antonymVerb = [];
+                    var antonymNoun =[];
+                    
+                        if (answer.hasOwnProperty("verb") && answer.verb.hasOwnProperty("syn")) {
+                            synonymVerb.push(answer.verb.syn.slice(0, 7));
+                           
+                        }
+                        if (answer.hasOwnProperty("noun") && answer.noun.hasOwnProperty("syn")) {
+                             synonymsNoun.push(answer.noun.syn.slice(0, 7));
+                        }
+                        if(answer.hasOwnProperty("noun") && answer.noun.hasOwnProperty("ant")) {
+                                 antonymNoun.push(answer.noun.ant.slice(0, 7));
+                        }
+                        if(answer.hasOwnProperty("verb") && answer.verb.hasOwnProperty("ant")) {
+                                antonymVerb.push(answer.verb.ant.slice(0, 7));
+                        }
+                        
                     
                     var table = new Table({
-                        head:[colors.rainbow('Synonyms & Antonyms')]
+                        head: [colors.rainbow('Synonyms & Antonyms')]
                     });
 
                     table.push({
-                        'Synonym Noun': synonymsNoun
+                        'Synonym Noun': colors.yellow(synonymsNoun)
                     }, {
-                        'Synonym Verb': synonymVerb
+                        'Synonym Verb': colors.green(synonymVerb)
                     }, {
-                        'Antonym Verb': antonym
+                        'Antonym Verb': colors.blue(antonymVerb)
+                    },
+                    {
+                        'Antonym Noun': antonymNoun
                     });
                     console.log(table.toString());
                 }
