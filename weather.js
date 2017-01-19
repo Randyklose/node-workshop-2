@@ -11,7 +11,7 @@
       * `colors`
       * `cli-table`
       * `node-emoji`
-  * Add/commit/push*/
+  * Add/commit/push* */
 
 
 var requestJson = require("./library/request-json");
@@ -20,64 +20,122 @@ var Table = require('cli-table');
 var colors = require('colors');
 var emoji = require('node-emoji');
 
+// var cityUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=";
+// var weatherUrl = "https://api.darksky.net/forecast/6c9f3ea6f33282b767d3d4ba347823f2/";
+
+// function weather() {
+//     console.log("Where are you?");
+//     prompt.get(["location"], function(err, result) {
+//         if (err) {
+//             console.log("Error!");
+//         }
+//         else {
+//             var finalCityUrl = cityUrl + result.location;
+
+//             requestJson(finalCityUrl, function(error, response) {
+//                 if (error) {
+//                     console.log(error);
+//                 }
+//                 else {
+//                     var lat = response.results[0].geometry.location.lat;
+//                     var lon = response.results[0].geometry.location.lng;
+
+//                     var finalWeatherUrl = weatherUrl + lat + "," + lon;
+
+//                     requestJson(finalWeatherUrl, function(error1, result) {
+//                         if (error1) {
+//                             console.log(error1);
+//                         }
+//                         else {
+
+//                             var minTemp =["Min Temp"];
+//                             var maxTemp =["Max Temp"];
+//                             var precipProbability =["Precipitation Prob"];
+//                             var icon =["Icon"];
+//                             for (var i=0; i<5; i++) {
+//                                 minTemp.push(colors.yellow(result.daily.data[i].temperatureMin));
+//                                 maxTemp.push(colors.blue(result.daily.data[i].temperatureMax));
+//                                 precipProbability.push(colors.red(result.daily.data[i].precipProbability));
+//                                 icon.push(colors.rainbow(result.daily.data[i].icon));
+//                             }
+
+//                             var table = new Table({
+//                                 head: ["  ", colors.rainbow("Day1"), colors.rainbow("Day2"), colors.rainbow("Day3")
+//                                 , colors.rainbow("Day4"), colors.rainbow("Day5")],
+//                                 colWidths: [10, 10, 10, 10, 10, 10]
+//                             });
+//                             table.push(minTemp,
+//                             maxTemp,
+//                             precipProbability,
+//                             icon);
+//                             console.log(table.toString());
+
+//                         }
+//                     });
+
+//                 }
+
+//             });
+//         }
+//     });
+// }
+
+// weather();
+
+//EXERCISE WITH PROMISES
+
+var requestPromise = require("request-promise");
+var promptPromise = require("prompt-promise");
+
+
 var cityUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=";
 var weatherUrl = "https://api.darksky.net/forecast/6c9f3ea6f33282b767d3d4ba347823f2/";
 
 function weather() {
+
     console.log("Where are you?");
-    prompt.get(["location"], function(err, result) {
-        if (err) {
-            console.log("Error!");
-        }
-        else {
-            var finalCityUrl = cityUrl + result.location;
+    return promptPromise("location")
+        .then(function(result) {
+            var finalCityUrl = cityUrl + result;
+            return requestPromise(finalCityUrl);
+        })
+        .then(function(response) {
+            var total = JSON.parse(response);
+            var lat = total.results[0].geometry.location.lat;
+            var lon = total.results[0].geometry.location.lng;
 
-            requestJson(finalCityUrl, function(error, response) {
-                if (error) {
-                    console.log(error);
-                }
-                else {
-                    var lat = response.results[0].geometry.location.lat;
-                    var lon = response.results[0].geometry.location.lng;
+            var finalWeatherUrl = weatherUrl + lat + "," + lon;
+            return requestPromise(finalWeatherUrl);
+        })
+        .then(function(answer) {
+            var result = JSON.parse(answer);
+            var minTemp = ["Min Temp"];
+            var maxTemp = ["Max Temp"];
+            var precipProbability = ["Precipitation Prob"];
+            var icon = ["Icon"];
+            for (var i = 0; i < 5; i++) {
+                minTemp.push(colors.yellow(result.daily.data[i].temperatureMin));
+                maxTemp.push(colors.blue(result.daily.data[i].temperatureMax));
+                precipProbability.push(colors.red(result.daily.data[i].precipProbability));
+                icon.push(colors.rainbow(result.daily.data[i].icon));
+            }
 
-                    var finalWeatherUrl = weatherUrl + lat + "," + lon;
-
-                    requestJson(finalWeatherUrl, function(error1, result) {
-                        if (error1) {
-                            console.log(error1);
-                        }
-                        else {
-                            
-                            var minTemp =["Min Temp"];
-                            var maxTemp =["Max Temp"];
-                            var precipProbability =["Precipitation Prob"];
-                            var icon =["Icon"];
-                            for (var i=0; i<5; i++) {
-                                minTemp.push(colors.yellow(result.daily.data[i].temperatureMin));
-                                maxTemp.push(colors.blue(result.daily.data[i].temperatureMax));
-                                precipProbability.push(colors.red(result.daily.data[i].precipProbability));
-                                icon.push(colors.rainbow(result.daily.data[i].icon));
-                            }
-                           
-                            var table = new Table({
-                                head: ["  ", colors.rainbow("Day1"), colors.rainbow("Day2"), colors.rainbow("Day3")
-                                , colors.rainbow("Day4"), colors.rainbow("Day5")],
-                                colWidths: [10, 10, 10, 10, 10, 10]
-                            });
-                            table.push(minTemp,
-                            maxTemp,
-                            precipProbability,
-                            icon);
-                            console.log(table.toString());
-
-                        }
-                    });
-
-                }
-
+            var table = new Table({
+                head: ["  ", colors.rainbow("Day1"), colors.rainbow("Day2"), colors.rainbow("Day3"), colors.rainbow("Day4"), colors.rainbow("Day5")],
+                colWidths: [10, 10, 10, 10, 10, 10]
             });
-        }
-    });
+            table.push(minTemp,
+                maxTemp,
+                precipProbability,
+                icon);
+            return table;
+        });
 }
 
-weather();
+weather().then(function(result) {
+    console.log(result.toString());
+    promptPromise.end();
+})
+.catch(function(err) {
+    console.log("There was an error",err);
+})

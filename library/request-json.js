@@ -11,11 +11,9 @@ function requestJson(url, callback) {
             try {
                 
                 var total = JSON.parse(result.body);
-                console.log(total)
                 callback(null, total);
             }
             catch(error) {
-              console.log("----")
                 callback(error);
             }
         }
